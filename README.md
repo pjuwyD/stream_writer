@@ -8,6 +8,8 @@ Microservice that reads from Redis and writes asynchronously to MySQL DB.
 - Batches and writes data to MySQL asynchronously
 - Configurable batch size and logging level
 - Supports bulk and single queries
+- Scaling: this service can be scaled horizontally by running multiple containers that listen to the same Redis queue. This is safe because Redis queue operations like BLPOP and LPOP are atomic: when a worker pops a message from the queue, that message is removed and cannot be processed by another worker.
+
 
 ## Project Structure
 
