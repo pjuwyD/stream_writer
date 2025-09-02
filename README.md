@@ -58,17 +58,18 @@ stream_writer/
 
 ### Run locally
 
+First, create and activate a Python virtual environment:
+
 ```sh
-python -m stream_writer.main
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Run in Docker
-
-Build and run the container:
+Then start the service:
 
 ```sh
-docker build -t stream_writer .
-docker run --env REDIS_QUEUES=queue1,queue2 stream_writer
+python -m stre
 ```
 
 ## Logging
@@ -112,3 +113,60 @@ docker compose -f docker/docker-compose.yml up
 
 This will launch the container with the environment variables specified in the compose file.  
 You can scale horizontally by increasing the number of replicas in the compose file or running more containers.
+
+## Kubernetes: Run as a Job
+
+To run this service as a Kubernetes Job, create a manifest like the following and apply it to your cluster:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stream-writer-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: stream-writer
+          image: stream-ms:latest
+          env:
+            - name: MYSQL_HOST
+              value: "mysql"
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DB
+              value: "live"
+            - name: MYSQL_USER
+              value: "root"
+            - name: MYSQL_PASSWORD
+              value: "root"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_QUEUES
+              value: "finishedSC,finishedCamp"
+            - name: BATCH_SIZE
+              value: "50"
+            - name: BLOCK_TIMEOUT
+              value: "5"
+            # Add Sentinel variables if needed
+            # - name: REDIS_USE_SENTINEL
+            #   value: "true"
+            # - name: REDIS_SENTINELS
+            #   value: "redis-sentinel-1:26379,redis-sentinel-2:26379"
+            # - name: REDIS_MASTER_NAME
+            #   value: "mymaster"
+      restartPolicy: Never
+```
+
+Apply the manifest:
+
+```sh
+kubectl apply -f stream-writer-job.yaml
+```
+
+**Scaling:**  
+To scale horizontally, increase the `parallelism` field in the Job spec or use a `Deployment` for long-running workers.
