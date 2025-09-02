@@ -1,7 +1,5 @@
-version: "3.9"
-
 networks:
-  axess_dev:
+  axess_net:
     driver: bridge
 
 services:
@@ -13,11 +11,11 @@ services:
       MYSQL_PORT: 3306
       MYSQL_DB: live
       MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: root
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
-      REDIS_QUEUES: finsc
+      REDIS_QUEUES: finishedSC,finishedCamp
       BATCH_SIZE: 50
       BLOCK_TIMEOUT: 5
       # For Sentinel:
@@ -25,4 +23,4 @@ services:
       # REDIS_SENTINELS: "redis-sentinel-1:26379,redis-sentinel-2:26379"
       # REDIS_MASTER_NAME: "mymaster"
     networks:
-      - axess_dev
+      - axess_net
