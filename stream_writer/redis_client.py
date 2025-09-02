@@ -10,7 +10,9 @@ async def get_redis_connection() -> redis.Redis:
     if Config.REDIS_USE_SENTINEL:
         # Parse sentinel hosts: "host1:26379,host2:26379"
         sentinels = [
-            tuple(s.strip().split(":")) for s in Config.REDIS_SENTINELS.split(",") if s.strip()
+            tuple(s.strip().split(":"))
+            for s in Config.REDIS_SENTINELS.split(",")
+            if s.strip()
         ]
         sentinels = [(host, int(port)) for host, port in sentinels]
         sentinel = Sentinel(sentinels, socket_timeout=2, decode_responses=True)

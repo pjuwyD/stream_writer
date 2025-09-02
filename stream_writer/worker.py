@@ -9,9 +9,10 @@ import logging
 # Setup logging
 logging.basicConfig(
     level=getattr(logging, Config.LOG_LEVEL, logging.INFO),
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    format="%(asctime)s [%(levelname)s] %(message)s",
 )
 logger = logging.getLogger(__name__)
+
 
 def normalize_params(params):
     """
@@ -64,7 +65,9 @@ async def process_batch(messages):
     # Execute bulk queries (all must share the same SQL template)
     if bulk_messages:
         first_query = json.loads(messages[0])["query"]
-        logger.debug(f"Executing bulk query: {first_query} with {len(bulk_messages)} sets of params")
+        logger.debug(
+            f"Executing bulk query: {first_query} with {len(bulk_messages)} sets of params"
+        )
         await execute_bulk(first_query, bulk_messages)
 
 
@@ -88,7 +91,7 @@ async def worker(queue: str):
             messages = [first_msg]
             logger.debug(f"Received first message: {first_msg}")
 
-            #Drain up to BATCH_SIZE - 1 more with a short timeout
+            # Drain up to BATCH_SIZE - 1 more with a short timeout
             for _ in range(int(Config.BATCH_SIZE) - 1):
                 try:
                     # Wait up to 0.1 seconds for next message
@@ -98,7 +101,7 @@ async def worker(queue: str):
                     _, next_msg = next_item
                     messages.append(next_msg)
                     logger.debug(f"Drained message: {next_msg}")
-                except:
+                except Exception:
                     break
 
             logger.info(f"Processing batch of {len(messages)} messages.")

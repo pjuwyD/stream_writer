@@ -25,6 +25,6 @@ class Config:
     # Batching
     BATCH_SIZE = int(os.getenv("BATCH_SIZE", 50))
     BLOCK_TIMEOUT = int(os.getenv("BLOCK_TIMEOUT", 5))  # sec for BLPOP blocking
-    
+
     # Logging
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
