@@ -89,3 +89,25 @@ Run tests (from project root):
 
 ```sh
 PYTHONPATH=./ pytest
+
+## Docker: Build Image and Run with Compose
+
+### Build the Docker Image
+
+From the project root (`/opt/stream_writer`), run:
+
+```sh
+docker build -t stream-ms:latest -f docker/Dockerfile .
+```
+
+### Run with Docker Compose
+
+Make sure your `docker-compose.yml` is in the `docker/` directory.  
+Start the service with:
+
+```sh
+docker compose -f docker/docker-compose.yml up
+```
+
+This will launch the container with the environment variables specified in the compose file.  
+You can scale horizontally by increasing the number of replicas in the compose file or running more containers.
