@@ -35,7 +35,9 @@ def normalize_params(params):
 async def process_batch(messages):
     """
     Process a batch of messages from Redis.
-    Bulk messages are executed together.
+    Splits into bulk and non-bulk messages so we can:
+      - run single statements one by one
+      - run batches with executemany()
     """
     bulk_messages = []
     non_bulk_messages = []
@@ -46,7 +48,6 @@ async def process_batch(messages):
             query = msg["query"]
             params = normalize_params(msg.get("params", []))
             bulk = msg.get("bulk", False)
-            logger.debug(f"Parsed message: {msg}")
             if bulk:
                 bulk_messages.append(params)
             else:
@@ -57,13 +58,13 @@ async def process_batch(messages):
 
     # Execute non-bulk queries immediately
     for query, params in non_bulk_messages:
-        logger.info(f"Executing non-bulk query: {query} with params: {params}")
+        logger.debug(f"Executing non-bulk query: {query} with params: {params}")
         await execute_query(query, params)
 
-    # Execute bulk queries together
+    # Execute bulk queries (all must share the same SQL template)
     if bulk_messages:
         first_query = json.loads(messages[0])["query"]
-        logger.info(f"Executing bulk query: {first_query} with {len(bulk_messages)} sets of params")
+        logger.debug(f"Executing bulk query: {first_query} with {len(bulk_messages)} sets of params")
         await execute_bulk(first_query, bulk_messages)
 
 
