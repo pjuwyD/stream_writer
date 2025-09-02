@@ -89,6 +89,7 @@ Run tests (from project root):
 
 ```sh
 PYTHONPATH=./ pytest
+```
 
 ## Docker: Build Image and Run with Compose
 
