@@ -69,7 +69,7 @@ pip install -r requirements.txt
 Then start the service:
 
 ```sh
-python -m stre
+python -m stream_writer.main
 ```
 
 ## Logging
