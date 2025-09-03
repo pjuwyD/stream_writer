@@ -38,3 +38,27 @@ async def test_execute_bulk(mock_pool):
 
     await execute_bulk("INSERT INTO t VALUES (%s)", [[1], [2]])
     mock_cursor.executemany.assert_awaited_with("INSERT INTO t VALUES (%s)", [[1], [2]])
+    
+@pytest.mark.asyncio
+@patch("stream_writer.db.pool")
+async def test_execute_query_raises(mock_pool):
+    mock_conn = AsyncMock()
+    mock_cursor = AsyncMock()
+
+    # Setup async context manager for acquire
+    mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
+    mock_pool.acquire.return_value.__aexit__.return_value = None
+
+    # Setup async context manager for cursor
+    mock_conn.cursor = MagicMock()
+    mock_conn.cursor.return_value.__aenter__.return_value = mock_cursor
+    mock_conn.cursor.return_value.__aexit__.return_value = None
+
+    # Simulate DB error
+    mock_cursor.execute.side_effect = Exception("DB failure")
+
+    # Assert exception is raised
+    with pytest.raises(Exception, match="DB failure"):
+        await execute_query("SELECT 1", [1])
+
+    mock_cursor.execute.assert_awaited_once_with("SELECT 1", [1])
